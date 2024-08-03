@@ -1,0 +1,21 @@
+{
+	"manifest_version": 3,
+	"name": "page saver",
+	"description": "save pages",
+	"version": "0.06",
+	"permissions": [
+		"pageCapture",
+		"alarms",
+		"tabs",
+		"activeTab",
+		"storage"
+	],
+	"background": {
+		"service_worker": "background.js"
+	},
+	"options_page": "options/options.html",
+	"icons": {
+		"128": "images/download-on.png"
+	},
+	"action": {}
+}
