@@ -5,7 +5,7 @@
 	"version": "0.06",
 	"permissions": [
 		"pageCapture",
-		"alarms",
+		"commands",
 		"tabs",
 		"activeTab",
 		"storage"
@@ -16,6 +16,15 @@
 	"options_page": "options/options.html",
 	"icons": {
 		"128": "images/download-on.png"
+	},
+	"commands": {
+		"save-page": {
+			"suggested_key": {
+				"default": "Ctrl+Shift+Y",
+				"mac": "Command+Shift+Y"
+			},
+			"description": "Save the current page."
+		}
 	},
 	"action": {}
 }

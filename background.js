@@ -1,5 +1,3 @@
-const ALARM_NAME = "save-tab-periodically";
-const listenHosts = ["nowcoder.com"];
 const backendServer = "http://localhost:3000/getData";
 
 
@@ -26,23 +24,11 @@ async function checkActiveTab(activeInfo) {
 
 	// if the url ends with "nowcoder.com"
 	const url = URL.parse(tab.url);
-	if (!url?.host) {
+	if (url?.protocol !== "http:" && url?.protocol !== "https:") {
 		return;
 	}
-	let has = false;
-	for (const host of listenHosts) {
-		if (url.host.endsWith(host)) {
-			has = true;
-			break;
-		}
-	}
-	const alarm = await chrome.alarms.get(ALARM_NAME);
-
-	if (has) {
-		setAlarm(0.5, onAlarm);
-	} else if (alarm) {
-		chrome.alarms.clear(ALARM_NAME);
-	}
+	
+	onAlarm();
 }
 
 // type define
@@ -76,19 +62,6 @@ async function onAlarm(alarm) {
 
 	// check if the backend server is running and waiting for the data
 	return checkAndSend(tab);
-}
-
-/**
- * 
- * @param {number} delayInMinutes 
- * @param {AlarmCallback} callback
- */
-function setAlarm(periodInMinutes, callback) {
-	chrome.alarms.onAlarm.addListener(callback);
-	chrome.alarms.create(ALARM_NAME, {
-		delayInMinutes: periodInMinutes,
-		periodInMinutes
-	}, callback);
 }
 
 /**
@@ -136,6 +109,14 @@ async function getStatus() {
 	return status;
 }
 
+async function executeCommand(command, tab) {
+	console.log("executeCommand", command, tab);
+	checkActiveTab({
+		tabId: tab.id,
+		windowId: tab.windowId
+	});
+}
+
 async function startUpHandler() {
 	const status = await getStatus();
 	const text = status ? "on" : "off";
@@ -148,21 +129,9 @@ async function startUpHandler() {
 	})
 
 	if (status) {
-		chrome.tabs.onActivated.addListener(checkActiveTab);
-		// check the current active tab
-		const tabs = await chrome.tabs.query({
-			active: true,
-			currentWindow: true
-		});
-		if (tabs) {
-			checkActiveTab({
-				tabId: tabs[0].id,
-				windowId: tabs[0].windowId
-			});
-		}
+		chrome.commands.onCommand.addListener(executeCommand);
 	} else {
-		chrome.tabs.onActivated.removeListener(checkActiveTab);
-		chrome.alarms.clear(ALARM_NAME);
+		chrome.commands.onCommand.removeListener(executeCommand);
 	}
 }
 
